@@ -295,16 +295,18 @@ public class SketchOutline {
     ASTNodeWrapper awnode = (ASTNodeWrapper) codetree.getUserObject(), aw2 = null;
 
     if (awnode.getNode() instanceof TypeDeclaration) {
-      aw2 = new ASTNodeWrapper( ((TypeDeclaration) awnode.getNode()).getName(),
+      aw2 = new ASTNodeWrapper(((TypeDeclaration) awnode.getNode()).getName(),
                                ((TypeDeclaration) awnode.getNode()).getName()
-                                   .toString());
+                                   .toString(),
+                               errorCheckerService.astGenerator);
     } else if (awnode.getNode() instanceof MethodDeclaration) {
       aw2 = new ASTNodeWrapper(
                                ((MethodDeclaration) awnode.getNode()).getName(),
                                new CompletionCandidate(
                                                        ((MethodDeclaration) awnode
                                                            .getNode()))
-                                   .toString());
+                                   .toString(),
+                               errorCheckerService.astGenerator);
     } else if (awnode.getNode() instanceof FieldDeclaration) {
       FieldDeclaration fd = (FieldDeclaration) awnode.getNode();
       for (VariableDeclarationFragment vdf : (List<VariableDeclarationFragment>) fd
@@ -314,7 +316,8 @@ public class SketchOutline {
                                                                                        vdf.getName(),
                                                                                        new CompletionCandidate(
                                                                                                                vdf)
-                                                                                           .toString()));
+                                                                                           .toString(),
+                                                                                       errorCheckerService.astGenerator));
         node.add(newNode);
       }
       return;

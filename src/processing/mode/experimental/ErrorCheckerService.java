@@ -1297,7 +1297,7 @@ public class ErrorCheckerService implements Runnable{
   }
   
   public boolean highlightNode(ASTNode node){
-    ASTNodeWrapper awrap = new ASTNodeWrapper(node);
+    ASTNodeWrapper awrap = new ASTNodeWrapper(node, astGenerator);
     return highlightNode(awrap);
   }
   

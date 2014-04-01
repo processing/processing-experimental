@@ -52,6 +52,8 @@ public class ASTNodeWrapper {
 
   private int lineNumber;
   
+  private ASTGenerator astGenerator;
+  
   //private int apiLevel;
   
   /*
@@ -63,7 +65,7 @@ public class ASTNodeWrapper {
    * Bad design choice for ECS methods? IDK, yet.
    */
   
-  public ASTNodeWrapper(ASTNode node) {
+  public ASTNodeWrapper(ASTNode node, ASTGenerator astGen) {
     if (node == null){
       return;
     }
@@ -74,9 +76,10 @@ public class ASTNodeWrapper {
     lineNumber = getLineNumber(node);
     label += " | Line " + lineNumber;
     //apiLevel = 0;
+    astGenerator = astGen;
   }
   
-  public ASTNodeWrapper(ASTNode node, String label){
+  /*public ASTNodeWrapper(ASTNode node, String label){
     if (node == null){
       return;
     }
@@ -91,6 +94,24 @@ public class ASTNodeWrapper {
       label += " | Line " + lineNumber;
     }
     lineNumber = getLineNumber(node);
+  }*/
+  
+  public ASTNodeWrapper(ASTNode node, String label, ASTGenerator astGen){
+    if (node == null){
+      return;
+    }
+    this.Node = node;
+    if(label != null)
+      this.label = label;
+    else{
+      label = getNodeAsString(node);
+      if (label == null)
+        label = node.toString();
+      
+      label += " | Line " + lineNumber;
+    }
+    lineNumber = getLineNumber(node);
+    astGenerator = astGen;
   }
 
   /**

@@ -260,7 +260,7 @@ public class ASTGenerator {
 //    compilationUnit.accept(visitor);
     getCodeComments();
     codeTree = new DefaultMutableTreeNode(new ASTNodeWrapper((ASTNode) compilationUnit
-                                              .types().get(0)));
+                                              .types().get(0),this));
     //log("Total CU " + compilationUnit.types().size());
     if(compilationUnit.types() == null || compilationUnit.types().isEmpty()){
       logE("No CU found!");
@@ -1566,7 +1566,7 @@ public class ASTGenerator {
     if (lineNode != null) {
       
       // Some delicate offset handling follows.
-      ASTNodeWrapper lineNodeWrap = new ASTNodeWrapper(lineNode);
+      ASTNodeWrapper lineNodeWrap = new ASTNodeWrapper(lineNode,this);
       int altOff = offset;
       int ret[][] = lineNodeWrap.getOffsetMapping(errorCheckerService);
       if(ret != null){
@@ -1635,7 +1635,7 @@ public class ASTGenerator {
 
         case ASTNode.VARIABLE_DECLARATION_FRAGMENT:
           decl = lineNode.getParent();
-          return new ASTNodeWrapper(decl,"");         
+          return new ASTNodeWrapper(decl,"",this);         
         default:
           break;
         }
@@ -1647,7 +1647,7 @@ public class ASTGenerator {
         decl = findDeclaration((SimpleName) simpName);
         if (decl != null) {
           logE("DECLA: " + decl.getClass().getName());
-          nodeLabel = getLabelIfType(new ASTNodeWrapper(decl), (SimpleName) simpName);
+          nodeLabel = getLabelIfType(new ASTNodeWrapper(decl,this), (SimpleName) simpName);
           //retLabelString = getNodeAsString(decl);
         } else
           logE("null");
@@ -1681,7 +1681,7 @@ public class ASTGenerator {
       errorCheckerService.highlightNode(simpName2);
     } 
 
-    return new ASTNodeWrapper(decl,nodeLabel);
+    return new ASTNodeWrapper(decl,nodeLabel,this);
   }
   
   /**
@@ -1742,7 +1742,7 @@ public class ASTGenerator {
     //traversal2();
   }
 
-  public static void traversal2() {
+  public void traversal2() {
     ASTParser parser = ASTParser.newParser(AST.JLS4);
     String source = readFile("/media/quarkninja/Work/TestStuff/low.java");
 //    String source = "package decl; \npublic class ABC{\n int ret(){\n}\n}";
@@ -2047,7 +2047,7 @@ public class ASTGenerator {
         TypeDeclaration td = (TypeDeclaration) node;
         if(td.getName().toString().equals(md.getName().toString())){
           logE("Renaming constructor of " + getNodeAsString(td));
-          wnode = new ASTNodeWrapper(td);
+          wnode = new ASTNodeWrapper(td,this);
         }
       }
     }
@@ -2056,7 +2056,7 @@ public class ASTGenerator {
                                                               new ASTNodeWrapper(
                                                                                  wnode
                                                                                      .getNode(),
-                                                                                 selText));
+                                                                                 selText,this));
     dfsNameOnly(defCU, wnode.getNode(), selText);
     
     // Reverse the list obtained via dfs
@@ -2079,7 +2079,7 @@ public class ASTGenerator {
    * @param node
    * @param tnode
    */
-  public static void visitRecur(ASTNode node, DefaultMutableTreeNode tnode) {
+  public void visitRecur(ASTNode node, DefaultMutableTreeNode tnode) {
     Iterator<StructuralPropertyDescriptor> it = node
         .structuralPropertiesForType().iterator();
     //logE("Props of " + node.getClass().getName());
@@ -2097,7 +2097,7 @@ public class ASTGenerator {
             if (isAddableASTNode(cnode)) {
               ctnode = new DefaultMutableTreeNode(
                                                   new ASTNodeWrapper((ASTNode) node
-                                                      .getStructuralProperty(prop)));
+                                                      .getStructuralProperty(prop),this));
               tnode.add(ctnode);
               visitRecur(cnode, ctnode);
             }
@@ -2113,7 +2113,7 @@ public class ASTGenerator {
             .getStructuralProperty(prop);
         for (ASTNode cnode : nodelist) {
           if (isAddableASTNode(cnode)) {
-            ctnode = new DefaultMutableTreeNode(new ASTNodeWrapper(cnode));
+            ctnode = new DefaultMutableTreeNode(new ASTNodeWrapper(cnode,this));
             tnode.add(ctnode);
             visitRecur(cnode, ctnode);
           } else
@@ -2141,7 +2141,7 @@ public class ASTGenerator {
         int val[] = errorCheckerService.JavaToPdeOffsets(awnode.getLineNumber(), 0);
         tnode.add(new DefaultMutableTreeNode(new ASTNodeWrapper(awnode
             .getNode(), "Line " + (val[1] + 1) + " | Tab: "
-            + editor.getSketch().getCode(val[0]).getPrettyName())));
+            + editor.getSketch().getCode(val[0]).getPrettyName(),this)));
       }
       
     }
