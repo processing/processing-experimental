@@ -1059,7 +1059,7 @@ public class ErrorCheckerService implements Runnable{
     // String[] lines = {};// = PApplet.split(sourceString, '\n');
     int codeIndex = 0;
 
-    int x = javalineNumber - mainClassOffset;
+    int x = javalineNumber - mainClassOffset, tabLessLineNumber = x;
     if (x < 0) {
       // log("Negative line number "
       // + problem.getSourceLineNumber() + " , offset "
@@ -1126,7 +1126,7 @@ public class ErrorCheckerService implements Runnable{
           .println("Things got messed up in ErrorCheckerService.calculateTabIndexAndLineNumber()");
     }
 
-    return new int[] { codeIndex, x };
+    return new int[] { codeIndex, x,tabLessLineNumber };
   }
 
   /**

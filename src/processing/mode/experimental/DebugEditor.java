@@ -50,7 +50,9 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.TableModel;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.swing.text.Element;
 
 import org.eclipse.jdt.core.compiler.IProblem;
 
@@ -1454,6 +1456,53 @@ public class DebugEditor extends JavaEditor implements ActionListener {
       log("Caret at:");
       log(ta.getLineText(ta.getCaretLine()));
       errorCheckerService.getASTGenerator().handleShowUsage();
+    }
+    
+    public int getLineStartOffset2(int line, int tab)
+    {
+      Document document = getSketch().getCode(tab).getDocument();
+      Element lineElement = document.getDefaultRootElement()
+      .getElement(line);
+      if(lineElement == null)
+        return -1;
+      else
+        return lineElement.getStartOffset();
+    }
+    
+    public int getLineStopOffset2(int line, int tab)
+    {
+      Document document = getSketch().getCode(tab).getDocument();
+      Element lineElement = document.getDefaultRootElement()
+      .getElement(line);
+      if(lineElement == null)
+        return -1;
+      else
+        return lineElement.getEndOffset();
+    }
+    
+    public String getLineText2(int lineIndex, int tab)
+    {
+      Document document = getSketch().getCode(tab).getDocument();
+      int start = getLineStartOffset2(lineIndex,tab);
+      int stop = getLineStopOffset2(lineIndex,tab) - start - 1;
+      try
+      {
+        return document.getText(start,stop);
+      }
+      catch(BadLocationException bl)
+      {
+        bl.printStackTrace();        
+      }
+      return null;
+    }
+    
+    public SketchCode getSCforLineNum(int lineNumber){
+      for (int i = 0; i < getSketch().getCodeCount(); i++) {
+        SketchCode sc = getSketch().getCode(i);
+        if(lineNumber < sc.getLineCount()) return sc;
+        lineNumber -= sc.getLineCount();
+      }
+      return null;
     }
     
     /**

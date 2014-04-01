@@ -40,6 +40,8 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
+import processing.app.SketchCode;
+
 /**
  * Wrapper class for ASTNode objects
  * @author Manindra Moharana <me@mkmoharana.com>
@@ -306,6 +308,14 @@ public class ASTNodeWrapper {
     
     int lineNum = getLineNumber(sn);
     log("SN "+sn + ", " + lineNum);
+    int pdeOffs[] = astGenerator.errorCheckerService.calculateTabIndexAndLineNumber(lineNum);
+    if(pdeOffs!=null){
+      log("Java line num: " + lineNum + " pde: " + pdeOffs[0] + ":" +pdeOffs[1] + " T:" +pdeOffs[2]);
+      DebugEditor editor = astGenerator.editor;      
+      log(editor.getSCforLineNum(pdeOffs[2]).getPrettyName());
+      log(editor.getLineText2(pdeOffs[1],pdeOffs[0]));
+    }
+    
     for (ASTNode astNode : list) {
       if(getLineNumber(astNode) == lineNum)
       {
