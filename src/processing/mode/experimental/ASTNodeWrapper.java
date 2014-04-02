@@ -25,6 +25,11 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Element;
+import javax.swing.text.PlainDocument;
+import javax.swing.text.StringContent;
+
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
@@ -590,6 +595,51 @@ public class ASTNodeWrapper {
 
   public int getLineNumber() {
     return lineNumber;
+  }
+  
+  public boolean highlightNode(){
+    if(!(Node instanceof SimpleName)){
+      return false; 
+    }
+    SimpleName nodeName = (SimpleName) Node;
+    int jdocOffset = 0;
+//    if (Node instanceof TypeDeclaration) {
+//      nodeName = ((TypeDeclaration)Node).getName();      
+//    } else if (Node instanceof MethodDeclaration) {
+//      nodeName = ((MethodDeclaration)Node).getName();
+//    } else if (Node instanceof FieldDeclaration) {
+//
+//    } else if (Node instanceof VariableDeclarationFragment) {
+//      nodeName = ((VariableDeclarationFragment)Node).getName();
+//    }
+//    if(nodeName == null){
+//     return false; 
+//    }
+    try {
+      int javaLineNumber = getLineNumber(nodeName);
+      int pdeOffs[] = astGenerator.errorCheckerService
+          .calculateTabIndexAndLineNumber(javaLineNumber);
+      PlainDocument javaSource = new PlainDocument();
+//      StringContent jsrc = new StringContent();
+//      jsrc.insertString(0, astGenerator.errorCheckerService.sourceCode);
+      javaSource.insertString(0, astGenerator.errorCheckerService.sourceCode, null);
+      Element lineElement = javaSource.getDefaultRootElement()
+          .getElement(javaLineNumber-1);
+      if(lineElement == null) {
+        log(lineNumber + " line element null while highlighting " + nodeName);
+        return false;
+      }
+      int startOff = nodeName.getStartPosition() - lineElement.getStartOffset();
+      log("Java line num: " + lineNumber + " pde: " + pdeOffs[0] + ":"
+          + pdeOffs[1] + " T:" + pdeOffs[2] + "pde lso " + startOff);
+      log(nodeName + " " + nodeName.getStartPosition() + " - " + (nodeName.getStartPosition() + nodeName.getLength()));
+      log("JE: " + lineElement.getStartOffset() +" to " + (lineElement.getEndOffset()));
+      String t = javaSource.getText(lineElement.getStartOffset(), lineElement.getEndOffset()-lineElement.getStartOffset());
+      //log(t + t.length());
+    } catch (BadLocationException e) {
+      e.printStackTrace();
+    }
+    return false;
   }
   
   /**
