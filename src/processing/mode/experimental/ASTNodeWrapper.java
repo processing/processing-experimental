@@ -631,11 +631,17 @@ public class ASTNodeWrapper {
       }
       int startOff = nodeName.getStartPosition() - lineElement.getStartOffset();
       log("Java line num: " + lineNumber + " pde: " + pdeOffs[0] + ":"
-          + pdeOffs[1] + " T:" + pdeOffs[2] + "pde lso " + startOff);
+          + pdeOffs[1] + " T:" + pdeOffs[2] + "pde lso " + startOff + " L " + nodeName.getLength());
       log(nodeName + " " + nodeName.getStartPosition() + " - " + (nodeName.getStartPosition() + nodeName.getLength()));
       log("JE: " + lineElement.getStartOffset() +" to " + (lineElement.getEndOffset()));
       String t = javaSource.getText(lineElement.getStartOffset(), lineElement.getEndOffset()-lineElement.getStartOffset());
-      //log(t + t.length());
+      log(t + t.length());
+      if(startOff >= 0){
+        astGenerator.editor.getSketch().setCurrentCode(pdeOffs[0]);
+        int lso = astGenerator.editor.ta.getLineStartOffset(pdeOffs[1]);
+        astGenerator.editor.setSelection(lso + startOff, lso + startOff + nodeName.getLength());
+        return true;
+      }
     } catch (BadLocationException e) {
       e.printStackTrace();
     }
