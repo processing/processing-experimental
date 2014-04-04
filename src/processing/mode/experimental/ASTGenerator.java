@@ -1680,7 +1680,9 @@ public class ASTGenerator {
       logE("FINAL String label: " + getNodeAsString(simpName2));
       //errorCheckerService.highlightNode(simpName2);
       ASTNodeWrapper declWrap = new ASTNodeWrapper(simpName2,nodeLabel,this);
-      declWrap.highlightNode();
+      if(!declWrap.highlightNode()) {
+        logE("Highlighting failed.");
+      }
     } 
 
     return new ASTNodeWrapper(decl,nodeLabel,this);

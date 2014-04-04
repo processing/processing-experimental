@@ -19,6 +19,7 @@
 package processing.mode.experimental;
 import static processing.mode.experimental.ExperimentalMode.log;
 import static processing.mode.experimental.ExperimentalMode.log2;
+import static processing.mode.experimental.ExperimentalMode.logE;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
@@ -602,26 +603,11 @@ public class ASTNodeWrapper {
       return false; 
     }
     SimpleName nodeName = (SimpleName) Node;
-    int jdocOffset = 0;
-//    if (Node instanceof TypeDeclaration) {
-//      nodeName = ((TypeDeclaration)Node).getName();      
-//    } else if (Node instanceof MethodDeclaration) {
-//      nodeName = ((MethodDeclaration)Node).getName();
-//    } else if (Node instanceof FieldDeclaration) {
-//
-//    } else if (Node instanceof VariableDeclarationFragment) {
-//      nodeName = ((VariableDeclarationFragment)Node).getName();
-//    }
-//    if(nodeName == null){
-//     return false; 
-//    }
     try {
       int javaLineNumber = getLineNumber(nodeName);
       int pdeOffs[] = astGenerator.errorCheckerService
           .calculateTabIndexAndLineNumber(javaLineNumber);
       PlainDocument javaSource = new PlainDocument();
-//      StringContent jsrc = new StringContent();
-//      jsrc.insertString(0, astGenerator.errorCheckerService.sourceCode);
       javaSource.insertString(0, astGenerator.errorCheckerService.sourceCode, null);
       Element lineElement = javaSource.getDefaultRootElement()
           .getElement(javaLineNumber-1);
@@ -629,20 +615,47 @@ public class ASTNodeWrapper {
         log(lineNumber + " line element null while highlighting " + nodeName);
         return false;
       }
-      int startOff = nodeName.getStartPosition() - lineElement.getStartOffset();
-      log("Java line num: " + lineNumber + " pde: " + pdeOffs[0] + ":"
-          + pdeOffs[1] + " T:" + pdeOffs[2] + "pde lso " + startOff + " L " + nodeName.getLength());
-      log(nodeName + " " + nodeName.getStartPosition() + " - " + (nodeName.getStartPosition() + nodeName.getLength()));
-      log("JE: " + lineElement.getStartOffset() +" to " + (lineElement.getEndOffset()));
-      String t = javaSource.getText(lineElement.getStartOffset(), lineElement.getEndOffset()-lineElement.getStartOffset());
-      log(t + t.length());
-      if(startOff >= 0){
-        astGenerator.editor.getSketch().setCurrentCode(pdeOffs[0]);
-        int lso = astGenerator.editor.ta.getLineStartOffset(pdeOffs[1]);
-        astGenerator.editor.setSelection(lso + startOff, lso + startOff + nodeName.getLength());
-        return true;
+      
+      String javaLine = javaSource.getText(lineElement.getStartOffset(),
+                                           lineElement.getEndOffset()
+                                               - lineElement.getStartOffset());
+      String pdeLine = astGenerator.editor.getLineText2(pdeOffs[1], pdeOffs[0]);
+      String lookingFor = nodeName.toString();
+      log("JL " + javaLine);
+      log("PL " + pdeLine);
+      if (!javaLine.contains(lookingFor) || !pdeLine.contains(lookingFor)) {
+        logE("Logical error in highLightNode(). Please file a bug report.");
+        return false;
       }
+
+      // find the count of the name in the java code
+      int count = 0, index = 0;
+      do {
+        index = javaLine.indexOf(lookingFor, index);
+        if (index != -1) {
+          count++;
+          index += lookingFor.length();
+        } else
+          break;
+      } while (true);
+      log("count=" + count);
+      // find the offset of the name of that index in the pde code
+      index = 0;
+      while (count > 0) {
+        index = pdeLine.indexOf(lookingFor, index);
+        if (index != -1) {
+          count--;
+          index += lookingFor.length();
+        }
+      }
+      log("pde lso " + (index - lookingFor.length()));
+      astGenerator.editor.getSketch().setCurrentCode(pdeOffs[0]);
+      int lso = astGenerator.editor.ta.getLineStartOffset(pdeOffs[1]);
+      astGenerator.editor.setSelection(lso + index - lookingFor.length(), lso
+          + index);
+      return true;
     } catch (BadLocationException e) {
+      logE("BLE in highLightNode() for " + nodeName);
       e.printStackTrace();
     }
     return false;
