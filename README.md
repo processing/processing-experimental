@@ -1,3 +1,5 @@
+**Update**: This repo is no longer active. PDE X codebase was merged into the [main processing repo](https://github.com/processing/processing/) starting with the 3.0 alpha releases (July 2014), further development continues in the main repo. So please report any issues in the main Processing repo.
+
 PDE X
 =====
 
